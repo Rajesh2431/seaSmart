@@ -7,67 +7,81 @@ class ContentService {
   static const List<Map<String, String>> youtubeVideos = [
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/5-minute-guided-breathing-exercise/', // Replace with your actual video
+      'url':
+          'https://course.strive-high.com/5-minute-guided-breathing-exercise/', // Replace with your actual video
       'description': '5-minute guided breathing exercise',
     },
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/what-is-mental-health/', // Replace with your actual video
-      'description': 'What is mental health? (Adult reflections, myths vs. facts)',
+      'url':
+          'https://course.strive-high.com/what-is-mental-health/', // Replace with your actual video
+      'description':
+          'What is mental health? (Adult reflections, myths vs. facts)',
     },
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/understanding-loneliness-at-sea/', // Replace with your actual video
+      'url':
+          'https://course.strive-high.com/understanding-loneliness-at-sea/', // Replace with your actual video
       'description': 'Understanding Seafarers Loneliness at Sea',
     },
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/stay-a-little-longer-at-the-mess-table/', // Replace with your actual video
+      'url':
+          'https://course.strive-high.com/stay-a-little-longer-at-the-mess-table/', // Replace with your actual video
       'description': 'Stay a Little Longer at the Mess Table',
     },
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/use-music-to-bring-you-home/', // Replace with your actual video
+      'url':
+          'https://course.strive-high.com/use-music-to-bring-you-home/', // Replace with your actual video
       'description': 'Use Music to Bring You Home',
     },
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/write-down-what-you-cant-say-out-loud/', // Replace with your actual video
+      'url':
+          'https://course.strive-high.com/write-down-what-you-cant-say-out-loud/', // Replace with your actual video
       'description': 'Write Down What You Can’t Say Out Loud',
     },
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/be-there-for-someone-else-even-quietly/', // Replace with your actual video
+      'url':
+          'https://course.strive-high.com/be-there-for-someone-else-even-quietly/', // Replace with your actual video
       'description': 'Be There for Someone Else — Even Quietly',
     },
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/create-simple-rituals-to-mark-time/', // Replace with your actual video
+      'url':
+          'https://course.strive-high.com/create-simple-rituals-to-mark-time/', // Replace with your actual video
       'description': ' Create Simple Rituals to Mark Time',
     },
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/reach-out-before-it-builds-up/', // Replace with your actual video
+      'url':
+          'https://course.strive-high.com/reach-out-before-it-builds-up/', // Replace with your actual video
       'description': 'Reach Out Before It Builds Up',
     },
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/understanding-cultural-differences/', // Replace with your actual video
+      'url':
+          'https://course.strive-high.com/understanding-cultural-differences/', // Replace with your actual video
       'description': 'Understanding Cultural Differences',
     },
     {
       'title': 'Watch this',
-      'url': 'https://course.strive-high.com/understanding-cultural-behaviors/', // Replace with your actual video
+      'url':
+          'https://course.strive-high.com/understanding-cultural-behaviors/', // Replace with your actual video
       'description': 'Additional Cultural Behaviors',
     },
   ];
 
   // Academy website link for loneliness course
-  static const String academyWebsiteUrl = 'https://strivehigh.thirdvizion.com/';
+  static const String academyWebsiteUrl =
+      'https://strive-high.com/strive-high-academy/';
   static const String academyWebsiteName = 'Loneliness Academy';
-  
+
   // Legacy LMS website link (keeping for backward compatibility)
-  static const String lmsWebsiteUrl = 'https://course.strive-high.com/courses/mental-health-2/';
+  static const String lmsWebsiteUrl =
+      'https://course.strive-high.com/courses/mental-health-2/';
   static const String lmsWebsiteName = 'Mental Health Learning Center';
 
   /// Get a random YouTube video
@@ -82,9 +96,9 @@ class ContentService {
       // Create different URL formats for better compatibility
       final Uri videoUri = Uri.parse(url);
       String? videoId = _extractYouTubeVideoId(url);
-      
+
       bool launched = false;
-      
+
       // First try: YouTube app with vnd.youtube scheme (if video ID available)
       if (videoId != null) {
         try {
@@ -97,7 +111,7 @@ class ContentService {
           launched = false;
         }
       }
-      
+
       // Second try: Launch in external application (YouTube app or browser)
       if (!launched) {
         try {
@@ -109,7 +123,7 @@ class ContentService {
           launched = false;
         }
       }
-      
+
       // Third try: Launch with platform default
       if (!launched) {
         try {
@@ -121,15 +135,12 @@ class ContentService {
           launched = false;
         }
       }
-      
+
       // Fourth try: Launch in web view as last resort
       if (!launched) {
-        launched = await launchUrl(
-          videoUri,
-          mode: LaunchMode.inAppWebView,
-        );
+        launched = await launchUrl(videoUri, mode: LaunchMode.inAppWebView);
       }
-      
+
       if (!launched) {
         throw 'Could not launch video: No suitable app found';
       }
@@ -153,10 +164,10 @@ class ContentService {
   static Future<void> launchAcademyWebsite() async {
     try {
       final Uri academyUri = Uri.parse(academyWebsiteUrl);
-      
+
       // Try to launch with different modes for better Android compatibility
       bool launched = false;
-      
+
       // First try: Launch in external browser
       try {
         launched = await launchUrl(
@@ -166,7 +177,7 @@ class ContentService {
       } catch (e) {
         launched = false;
       }
-      
+
       // Second try: Launch with platform default
       if (!launched) {
         launched = await launchUrl(
@@ -174,15 +185,12 @@ class ContentService {
           mode: LaunchMode.platformDefault,
         );
       }
-      
+
       // Third try: Launch in web view as fallback
       if (!launched) {
-        launched = await launchUrl(
-          academyUri,
-          mode: LaunchMode.inAppWebView,
-        );
+        launched = await launchUrl(academyUri, mode: LaunchMode.inAppWebView);
       }
-      
+
       if (!launched) {
         throw 'Could not launch Academy website: No suitable browser found';
       }
@@ -196,10 +204,10 @@ class ContentService {
   static Future<void> launchLMSWebsite() async {
     try {
       final Uri lmsUri = Uri.parse(lmsWebsiteUrl);
-      
+
       // Try to launch with different modes for better Android compatibility
       bool launched = false;
-      
+
       // First try: Launch in external browser
       try {
         launched = await launchUrl(
@@ -209,23 +217,17 @@ class ContentService {
       } catch (e) {
         launched = false;
       }
-      
+
       // Second try: Launch with platform default
       if (!launched) {
-        launched = await launchUrl(
-          lmsUri,
-          mode: LaunchMode.platformDefault,
-        );
+        launched = await launchUrl(lmsUri, mode: LaunchMode.platformDefault);
       }
-      
+
       // Third try: Launch in web view as fallback
       if (!launched) {
-        launched = await launchUrl(
-          lmsUri,
-          mode: LaunchMode.inAppWebView,
-        );
+        launched = await launchUrl(lmsUri, mode: LaunchMode.inAppWebView);
       }
-      
+
       if (!launched) {
         throw 'Could not launch LMS website: No suitable browser found';
       }
@@ -256,68 +258,81 @@ class ContentService {
   static const List<Map<String, String>> _enhancedVideoKeywords = [
     {
       'index': '0',
-      'keywords': 'breathing, anxiety, stress, panic, calm, relaxation, meditation, breathe, deep breathing, mindfulness, worried, nervous',
+      'keywords':
+          'breathing, anxiety, stress, panic, calm, relaxation, meditation, breathe, deep breathing, mindfulness, worried, nervous',
     },
     {
-      'index': '1', 
-      'keywords': 'mental health, understanding, facts, myths, awareness, education, psychology, wellbeing, confused, learning',
+      'index': '1',
+      'keywords':
+          'mental health, understanding, facts, myths, awareness, education, psychology, wellbeing, confused, learning',
     },
     {
       'index': '2',
-      'keywords': 'loneliness, isolation, seafarer, alone, lonely, sea, ship, homesick, missing family, social connection, isolated',
+      'keywords':
+          'loneliness, isolation, seafarer, alone, lonely, sea, ship, homesick, missing family, social connection, isolated',
     },
     {
       'index': '3',
-      'keywords': 'social, connection, friendship, community, together, mess table, eating, bonding, relationships, teamwork',
+      'keywords':
+          'social, connection, friendship, community, together, mess table, eating, bonding, relationships, teamwork',
     },
     {
       'index': '4',
-      'keywords': 'music, homesick, home, family, memories, comfort, therapy, emotional, nostalgia, missing home, sad',
+      'keywords':
+          'music, homesick, home, family, memories, comfort, therapy, emotional, nostalgia, missing home, sad',
     },
     {
       'index': '5',
-      'keywords': 'writing, journaling, expression, feelings, emotions, communication, thoughts, diary, therapeutic writing, unexpressed',
+      'keywords':
+          'writing, journaling, expression, feelings, emotions, communication, thoughts, diary, therapeutic writing, unexpressed',
     },
     {
       'index': '6',
-      'keywords': 'support, helping others, empathy, compassion, friendship, care, kindness, being present, solidarity, teamwork',
+      'keywords':
+          'support, helping others, empathy, compassion, friendship, care, kindness, being present, solidarity, teamwork',
     },
     {
       'index': '7',
-      'keywords': 'routine, ritual, time, structure, habits, daily, organization, schedule, consistency, stability, lost, confused',
+      'keywords':
+          'routine, ritual, time, structure, habits, daily, organization, schedule, consistency, stability, lost, confused',
     },
     {
       'index': '8',
-      'keywords': 'help, support, reaching out, communication, asking for help, prevention, early intervention, talking, overwhelmed',
+      'keywords':
+          'help, support, reaching out, communication, asking for help, prevention, early intervention, talking, overwhelmed',
     },
     {
       'index': '9',
-      'keywords': 'culture, diversity, differences, understanding, respect, multicultural, tolerance, acceptance, international, conflict',
+      'keywords':
+          'culture, diversity, differences, understanding, respect, multicultural, tolerance, acceptance, international, conflict',
     },
     {
       'index': '10',
-      'keywords': 'cultural behavior, adaptation, customs, traditions, adjustment, integration, cross-cultural, diversity, different',
+      'keywords':
+          'cultural behavior, adaptation, customs, traditions, adjustment, integration, cross-cultural, diversity, different',
     },
   ];
-  
+
   static get CertificateService => null;
 
   /// Analyze user message and suggest the most relevant video
-  static Map<String, String>? analyzeMessageAndSuggestVideo(String userMessage) {
+  static Map<String, String>? analyzeMessageAndSuggestVideo(
+    String userMessage,
+  ) {
     if (userMessage.trim().isEmpty) return null;
 
     final message = userMessage.toLowerCase();
-    
+
     // Calculate relevance scores for each video
     List<MapEntry<int, double>> videoScores = [];
-    
+
     for (int i = 0; i < _enhancedVideoKeywords.length; i++) {
       final keywords = _enhancedVideoKeywords[i]['keywords']!.toLowerCase();
       final keywordList = keywords.split(', ');
-      
+
       double score = 0.0;
       int matchCount = 0;
-      
+
       // Check for keyword matches
       for (String keyword in keywordList) {
         if (message.contains(keyword.trim())) {
@@ -330,29 +345,40 @@ class ContentService {
           }
         }
       }
-      
+
       // Bonus for multiple keyword matches
       if (matchCount > 1) {
         score += matchCount * 0.5;
       }
-      
+
       // Check for emotional intensity words
-      final intensityWords = ['very', 'really', 'extremely', 'so', 'too', 'much', 'badly', 'terrible', 'awful', 'horrible'];
+      final intensityWords = [
+        'very',
+        'really',
+        'extremely',
+        'so',
+        'too',
+        'much',
+        'badly',
+        'terrible',
+        'awful',
+        'horrible',
+      ];
       for (String intensity in intensityWords) {
         if (message.contains(intensity)) {
           score += 0.5;
           break;
         }
       }
-      
+
       if (score > 0) {
         videoScores.add(MapEntry(i, score));
       }
     }
-    
+
     // Sort by score (highest first)
     videoScores.sort((a, b) => b.value.compareTo(a.value));
-    
+
     // Return the highest scoring video if any matches found
     if (videoScores.isNotEmpty && videoScores.first.value >= 1.0) {
       final bestVideoIndex = videoScores.first.key;
@@ -360,7 +386,7 @@ class ContentService {
         return youtubeVideos[bestVideoIndex];
       }
     }
-    
+
     // If no good match found, return null (will use random video)
     return null;
   }
@@ -368,7 +394,7 @@ class ContentService {
   /// Get intelligent video suggestion based on user message
   static String getIntelligentVideoSuggestion(String userMessage) {
     final suggestedVideo = analyzeMessageAndSuggestVideo(userMessage);
-    
+
     if (suggestedVideo != null) {
       return 'Based on what you\'re sharing, I think this video might help: "${suggestedVideo['title']}" - ${suggestedVideo['description']}. Would you like to watch it? 📺';
     } else {
@@ -382,18 +408,73 @@ class ContentService {
   static List<String> analyzeMessageSentiment(String userMessage) {
     final message = userMessage.toLowerCase();
     final emotionalKeywords = <String>[];
-    
+
     // Define emotional categories and their keywords
     final emotionMap = {
-      'anxiety': ['anxious', 'worried', 'nervous', 'panic', 'fear', 'scared', 'stress', 'overwhelmed'],
-      'sadness': ['sad', 'depressed', 'down', 'lonely', 'empty', 'hopeless', 'crying', 'tears'],
-      'anger': ['angry', 'mad', 'frustrated', 'irritated', 'annoyed', 'rage', 'furious'],
-      'loneliness': ['lonely', 'alone', 'isolated', 'disconnected', 'missing', 'homesick'],
-      'confusion': ['confused', 'lost', 'uncertain', 'don\'t know', 'unclear', 'mixed up'],
-      'fatigue': ['tired', 'exhausted', 'drained', 'weary', 'burnt out', 'sleepy'],
-      'positive': ['happy', 'good', 'great', 'excited', 'grateful', 'thankful', 'better'],
+      'anxiety': [
+        'anxious',
+        'worried',
+        'nervous',
+        'panic',
+        'fear',
+        'scared',
+        'stress',
+        'overwhelmed',
+      ],
+      'sadness': [
+        'sad',
+        'depressed',
+        'down',
+        'lonely',
+        'empty',
+        'hopeless',
+        'crying',
+        'tears',
+      ],
+      'anger': [
+        'angry',
+        'mad',
+        'frustrated',
+        'irritated',
+        'annoyed',
+        'rage',
+        'furious',
+      ],
+      'loneliness': [
+        'lonely',
+        'alone',
+        'isolated',
+        'disconnected',
+        'missing',
+        'homesick',
+      ],
+      'confusion': [
+        'confused',
+        'lost',
+        'uncertain',
+        'don\'t know',
+        'unclear',
+        'mixed up',
+      ],
+      'fatigue': [
+        'tired',
+        'exhausted',
+        'drained',
+        'weary',
+        'burnt out',
+        'sleepy',
+      ],
+      'positive': [
+        'happy',
+        'good',
+        'great',
+        'excited',
+        'grateful',
+        'thankful',
+        'better',
+      ],
     };
-    
+
     for (String category in emotionMap.keys) {
       for (String keyword in emotionMap[category]!) {
         if (message.contains(keyword)) {
@@ -402,7 +483,7 @@ class ContentService {
         }
       }
     }
-    
+
     return emotionalKeywords;
   }
 
@@ -410,29 +491,32 @@ class ContentService {
   static String getContextualResponse(String userMessage) {
     final emotions = analyzeMessageSentiment(userMessage);
     final suggestedVideo = analyzeMessageAndSuggestVideo(userMessage);
-    
+
     String response = '';
-    
+
     // Acknowledge emotions first
     if (emotions.isNotEmpty) {
       if (emotions.contains('anxiety') || emotions.contains('stress')) {
         response += 'I understand you\'re feeling anxious or stressed. ';
-      } else if (emotions.contains('sadness') || emotions.contains('loneliness')) {
+      } else if (emotions.contains('sadness') ||
+          emotions.contains('loneliness')) {
         response += 'I can sense you\'re going through a difficult time. ';
-      } else if (emotions.contains('anger') || emotions.contains('frustration')) {
+      } else if (emotions.contains('anger') ||
+          emotions.contains('frustration')) {
         response += 'It sounds like you\'re feeling frustrated. ';
       } else if (emotions.contains('positive')) {
         response += 'I\'m glad to hear you\'re feeling positive! ';
       }
     }
-    
+
     // Add video suggestion
     if (suggestedVideo != null) {
-      response += 'I found a video that might be particularly helpful for what you\'re experiencing: "${suggestedVideo['title']}" - ${suggestedVideo['description']}. ';
+      response +=
+          'I found a video that might be particularly helpful for what you\'re experiencing: "${suggestedVideo['title']}" - ${suggestedVideo['description']}. ';
     }
-    
+
     response += 'Would you like me to share the video link? 📺';
-    
+
     return response;
   }
 

@@ -8,7 +8,7 @@ import 'ai_knowledge_service.dart';
 class OpenRouterAPI {
   static const _url = 'https://openrouter.ai/api/v1/chat/completions';
   static const _apiKey =
-      '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';
+      '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';
   //static final _apiKey = dotenv.env['OPENROUTER_API_KEY'] ?? '';
 
   static Future<String> getResponse(String prompt) async {

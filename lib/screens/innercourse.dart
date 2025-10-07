@@ -63,6 +63,31 @@ class _InnerCourseState extends State<InnerCourse>
     }
   }
 
+  /// Navigate to external website
+  Future<void> _navigateToWebsite() async {
+    try {
+      await ContentService.launchAcademyWebsite();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Opening course website...'),
+            backgroundColor: Color(0xFF3B82F6),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error opening website: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _generateCertificate() async {
     // For loneliness courses, navigate to external academy first
     if (_isLonelinessCourse()) {
@@ -172,9 +197,14 @@ class _InnerCourseState extends State<InnerCourse>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 400;
+
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        backgroundColor: Colors.white,
+        elevation: 0,
         title: Text(
           widget.courseTitle,
           style: const TextStyle(
@@ -196,77 +226,76 @@ class _InnerCourseState extends State<InnerCourse>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Course Header Card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1E88E5), Color(0xFF21A2D0)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
                   children: [
-                    Icon(Icons.school, size: 60, color: Colors.blue.shade700),
-                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.school,
+                        size: 50,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     Text(
                       widget.courseTitle,
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                        color: Colors.white,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      "Course Content",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade600,
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        "Professional Development Course",
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 24),
+
+              // Course Overview Section
               const Text(
                 "Course Overview",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                "Welcome to the ${widget.courseTitle} course. This comprehensive course will help you understand and develop skills in this important area. Our expert-designed curriculum covers all the essential topics and provides practical knowledge you can apply immediately.",
-                style: const TextStyle(
-                  fontSize: 16,
-                  height: 1.6,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
               ),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: _generateCertificate,
-                      icon: Icon(
-                        _isLonelinessCourse() ? Icons.launch : Icons.check_circle, 
-                        color: Colors.white
-                      ),
-                      label: Text(
-                        _isLonelinessCourse() ? "Start Course" : "Completed",
-                        style: const TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -274,23 +303,219 @@ class _InnerCourseState extends State<InnerCourse>
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade200),
                 ),
+                child: Text(
+                  "Welcome to the ${widget.courseTitle} course. This comprehensive course will help you understand and develop skills in this important area. Our expert-designed curriculum covers all the essential topics and provides practical knowledge you can apply immediately.",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    height: 1.6,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Course Features
+              const Text(
+                "What You'll Learn",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildFeatureCard(
+                icon: Icons.check_circle_outline,
+                title: "Expert Content",
+                description: "Learn from industry professionals",
+              ),
+              const SizedBox(height: 12),
+              _buildFeatureCard(
+                icon: Icons.timer_outlined,
+                title: "Self-Paced Learning",
+                description: "Study at your own convenience",
+              ),
+              const SizedBox(height: 12),
+              _buildFeatureCard(
+                icon: Icons.workspace_premium_outlined,
+                title: "Certificate of Completion",
+                description: "Earn recognition for your achievement",
+              ),
+              const SizedBox(height: 32),
+
+              // Action Buttons
+              isSmallScreen
+                  ? Column(
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: _generateCertificate,
+                            icon: Icon(
+                              _isLonelinessCourse()
+                                  ? Icons.launch
+                                  : Icons.check_circle,
+                              color: Colors.white,
+                            ),
+                            label: Text(
+                              _isLonelinessCourse()
+                                  ? "Start Course"
+                                  : "Mark as Completed",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              side: const BorderSide(
+                                color: Colors.blue,
+                                width: 2,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: _navigateToWebsite,
+                            icon: const Icon(
+                              Icons.language,
+                              color: Colors.blue,
+                            ),
+                            label: const Text(
+                              "Visit Course Website",
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: _generateCertificate,
+                            icon: Icon(
+                              _isLonelinessCourse()
+                                  ? Icons.launch
+                                  : Icons.check_circle,
+                              color: Colors.white,
+                            ),
+                            label: Text(
+                              _isLonelinessCourse()
+                                  ? "Start Course"
+                                  : "Mark as Completed",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              side: const BorderSide(
+                                color: Colors.blue,
+                                width: 2,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            onPressed: _navigateToWebsite,
+                            icon: const Icon(
+                              Icons.language,
+                              color: Colors.blue,
+                            ),
+                            label: const Text(
+                              "Website",
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+              const SizedBox(height: 24),
+
+              // Additional Resources Section
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Additional Resources",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.folder_open,
+                            color: Colors.blue.shade700,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          "Additional Resources",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     _buildResourceItem("Course Materials", Icons.download),
                     _buildResourceItem("Discussion Forum", Icons.forum),
                     _buildResourceItem("Help & Support", Icons.help),
                   ],
                 ),
               ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -298,15 +523,84 @@ class _InnerCourseState extends State<InnerCourse>
     );
   }
 
-  Widget _buildResourceItem(String title, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+  Widget _buildFeatureCard({
+    required IconData icon,
+    required String title,
+    required String description,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.blue.shade600, size: 20),
-          const SizedBox(width: 12),
-          Text(title, style: const TextStyle(fontSize: 16)),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: Colors.blue.shade700, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildResourceItem(String title, IconData icon) {
+    return InkWell(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Opening $title...'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.blue.shade600, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(fontSize: 16, color: Colors.black87),
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey.shade400,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -336,13 +630,6 @@ class _InnerCourseState extends State<InnerCourse>
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
             ),
             child: Stack(
               children: [
@@ -380,13 +667,6 @@ class _InnerCourseState extends State<InnerCourse>
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.amber.withOpacity(0.5),
-                                    blurRadius: 20,
-                                    spreadRadius: 5,
-                                  ),
-                                ],
                               ),
                               child: const Icon(
                                 Icons.workspace_premium,
@@ -413,13 +693,6 @@ class _InnerCourseState extends State<InnerCourse>
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                  shadows: [
-                                    Shadow(
-                                      color: Colors.black26,
-                                      blurRadius: 10,
-                                      offset: Offset(2, 2),
-                                    ),
-                                  ],
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -443,13 +716,6 @@ class _InnerCourseState extends State<InnerCourse>
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                  shadows: [
-                                    Shadow(
-                                      color: Colors.black26,
-                                      blurRadius: 8,
-                                      offset: Offset(2, 2),
-                                    ),
-                                  ],
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -506,19 +772,18 @@ class _InnerCourseState extends State<InnerCourse>
                                   backgroundColor: Colors.white,
                                   foregroundColor: const Color(0xFF4CAF50),
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 12,
+                                    horizontal: 32,
+                                    vertical: 14,
                                   ),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(25),
                                   ),
-                                  elevation: 8,
-                                  shadowColor: Colors.white.withOpacity(0.5),
+                                  elevation: 0,
                                 ),
                                 child: const Text(
                                   'Continue',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
