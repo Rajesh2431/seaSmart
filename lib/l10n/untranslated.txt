@@ -1,0 +1,69 @@
+{
+  "es": [
+    "striveHigh",
+    "striveHighCourses",
+    "professionalSkills",
+    "yourCalmCompass",
+    "chatWithAnExpert",
+    "call",
+    "chat",
+    "pleaseLoginFirst",
+    "courseWellness",
+    "courseStressManagement",
+    "courseLoneliness",
+    "courseManagement",
+    "courseLeadership",
+    "courseDecisionMaking"
+  ],
+
+  "fr": [
+    "striveHigh",
+    "striveHighCourses",
+    "professionalSkills",
+    "yourCalmCompass",
+    "chatWithAnExpert",
+    "call",
+    "chat",
+    "pleaseLoginFirst",
+    "courseWellness",
+    "courseStressManagement",
+    "courseLoneliness",
+    "courseManagement",
+    "courseLeadership",
+    "courseDecisionMaking"
+  ],
+
+  "ja": [
+    "striveHigh",
+    "striveHighCourses",
+    "professionalSkills",
+    "yourCalmCompass",
+    "chatWithAnExpert",
+    "call",
+    "chat",
+    "pleaseLoginFirst",
+    "courseWellness",
+    "courseStressManagement",
+    "courseLoneliness",
+    "courseManagement",
+    "courseLeadership",
+    "courseDecisionMaking"
+  ],
+
+  "zh": [
+    "striveHigh",
+    "striveHighCourses",
+    "professionalSkills",
+    "yourCalmCompass",
+    "chatWithAnExpert",
+    "call",
+    "chat",
+    "pleaseLoginFirst",
+    "courseWellness",
+    "courseStressManagement",
+    "courseLoneliness",
+    "courseManagement",
+    "courseLeadership",
+    "courseDecisionMaking"
+  ]
+}
