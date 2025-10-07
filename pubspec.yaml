@@ -1,0 +1,79 @@
+name: SeaSmart
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+ 
+    sdk: flutter
+  provider: ^6.1.0
+  flutter_localizations:
+    sdk: flutter
+  
+  http: ^1.4.0
+  flutter_dotenv: ^6.0.0
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.1.0
+  flutter_test:
+    sdk: flutter
+  speech_to_text: ^7.1.0
+  permission_handler: ^12.0.1
+  flutter_tts: ^4.2.3
+  intl: ^0.20.2
+  file_picker: ^10.2.0
+  table_calendar: ^3.2.0
+  just_audio: ^0.10.4
+  path_provider: any
+  audioplayers: ^6.5.1
+  flutter_sound: ^9.2.13
+  shared_preferences: ^2.5.3
+  animated_emoji: ^3.2.1
+  #just_audio: ^0.9.36
+  audio_session: ^0.2.2
+  curved_navigation_bar: ^1.0.6
+  syncfusion_flutter_pdf: ^31.1.22
+  url_launcher: ^6.2.4
+  timezone: ^0.10.1
+  flutter_local_notifications: ^19.4.2
+  dio: ^5.9.0
+  fl_chart: ^1.1.1
+  open_file: ^3.3.2
+  pdf: ^3.10.4
+  share_plus: ^12.0.0
+  device_info_plus: ^12.1.0
+  showcaseview: ^4.0.1
+  video_player: ^2.10.0
+   
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^6.0.0
+  flutter_gen: ^5.3.2
+  #emoji_picker_flutter: ^1.6.1
+
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "lib/assets/icons/app_icon1.png"
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - lib/assets/icons/
+    - lib/assets/videos/
+    - lib/assets/sources/
+    - lib/assets/avatar/
+    - lib/assets/images/
+    - lib/assets/images/login_background.png
+    - lib/assets/images/login_background1.png
+    - lib/assets/doc/
+# Change App Icon Command
+# flutter pub run flutter_launcher_icons:main
