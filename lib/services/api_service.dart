@@ -4,11 +4,12 @@ import 'backend_pdf_service.dart';
 import 'conversation_state_service.dart';
 import 'mood_based_chat_service.dart';
 import 'ai_knowledge_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class OpenRouterAPI {
   static const _url = 'https://openrouter.ai/api/v1/chat/completions';
-  static const _apiKey =
-      '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';
+  static final _apiKey = dotenv.env['OPENROUTER_API_KEY'] ?? '';
+
   //static final _apiKey = dotenv.env['OPENROUTER_API_KEY'] ?? '';
 
   static Future<String> getResponse(String prompt) async {

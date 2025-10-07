@@ -24,6 +24,7 @@ import 'services/notification_service.dart';
 import 'services/user_profile_service.dart';
 import 'services/auth_service.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,8 @@ void main() async {
 
   // Enable notifications by default (compulsory)
   await NotificationService.enableDefaultNotifications();
+
+  await dotenv.load(fileName: ".env");
 
   runApp(const App());
 }
