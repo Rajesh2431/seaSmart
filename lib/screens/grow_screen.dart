@@ -24,6 +24,7 @@ import '../services/guided_tour_service.dart';
 import '../services/avatar_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
+import 'package:flutter/services.dart';
 
 class GrowScreen extends StatefulWidget {
   const GrowScreen({super.key});
@@ -800,6 +801,52 @@ class _GrowScreenState extends State<GrowScreen>
   // Avatar change subscription
   StreamSubscription<Map<String, String>>? _avatarChangeSubscription;
 
+  DateTime? _lastBack;
+
+  Future<bool> _handleBackToExit() async {
+    final now = DateTime.now();
+    final isSecond =
+        _lastBack != null &&
+        now.difference(_lastBack!) < const Duration(seconds: 2);
+
+    if (isSecond) {
+      // Exit app instead of popping the previous screen
+      SystemNavigator.pop();
+      return false; // consume the pop
+    } else {
+      _lastBack = now;
+      if (mounted) {
+        final messenger = ScaffoldMessenger.of(context);
+        messenger.removeCurrentSnackBar();
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Press back again to exit')),
+        );
+      }
+      return false; // consume the pop
+    }
+  }
+
+  static const double _edgeWidth = 24.0;
+  static const double _swipeTriggerDx = 80.0;
+  Offset? _dragStart;
+
+  void _onHorizontalDragStart(DragStartDetails d) {
+    if (d.globalPosition.dx <= _edgeWidth) _dragStart = d.globalPosition;
+  }
+
+  Future<void> _onHorizontalDragUpdate(DragUpdateDetails d) async {
+    if (_dragStart == null) return;
+    final moved = d.globalPosition.dx - _dragStart!.dx;
+    if (moved >= _swipeTriggerDx) {
+      _dragStart = null;
+      await _handleBackToExit();
+    }
+  }
+
+  void _onHorizontalDragEnd(DragEndDetails d) {
+    _dragStart = null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -1005,141 +1052,50 @@ class _GrowScreenState extends State<GrowScreen>
     }
   }
 
-  void _onBottomNavTap(int index) {
-    if (mounted) {
-      setState(() {
-        _selectedBottomIndex = index;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: Stack(
-        children: [
-          _selectedBottomIndex == 0
-              ? _buildGrowScreenContent() // Show grow screen content
-              : _getPageForIndex(_selectedBottomIndex), // Show other pages
-          // Start Tour Button (bottom overlay)
-          if (!_showSkipButton)
-            Positioned(
-              bottom: 20,
-              right: 20,
-              child: FloatingActionButton(
-                onPressed: _startTutorial,
-                backgroundColor: const Color(0xFF3498DB),
-                child: const Icon(Icons.tour, color: Colors.white, size: 24),
-              ),
-            ),
+    return WillPopScope(
+      onWillPop: _handleBackToExit,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragStart: _onHorizontalDragStart,
+        onHorizontalDragUpdate: _onHorizontalDragUpdate,
+        onHorizontalDragEnd: _onHorizontalDragEnd,
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF8F9FA),
+          body: Stack(
+            children: [
+              _selectedBottomIndex == 0
+                  ? _buildGrowScreenContent() // Show grow screen content
+                  : _getPageForIndex(_selectedBottomIndex), // Show other pages
+              // Start Tour Button (bottom overlay)
+              if (!_showSkipButton)
+                Positioned(
+                  bottom: 20,
+                  right: 20,
+                  child: FloatingActionButton(
+                    onPressed: _startTutorial,
+                    backgroundColor: const Color(0xFF3498DB),
+                    child: const Icon(
+                      Icons.tour,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                ),
 
-          // Tour skip button overlay
-          if (_showSkipButton)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: TourSkipButton(onSkip: _tourOnSkip ?? () {}),
-            ),
-        ],
+              // Tour skip button overlay
+              if (_showSkipButton)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: TourSkipButton(onSkip: _tourOnSkip ?? () {}),
+                ),
+            ],
+          ),
+        ),
       ),
-      // bottomNavigationBar: CurvedNavigationBar(
-      //   index: _selectedBottomIndex,
-      //   height: 50,
-      //   backgroundColor: const Color(0xFFF8F9FA),
-      //   color: const Color(0xFF5DC1F3),
-      //   buttonBackgroundColor: const Color(0xFF4A90E2),
-      //   animationDuration: const Duration(milliseconds: 300),
-      //   animationCurve: Curves.easeInOut,
-      //   items: [
-      //     // Home (Grow Screen)
-      //     _selectedBottomIndex == 0
-      //         ? const Icon(Icons.home, size: 32, color: Colors.white)
-      //         : const Column(
-      //             mainAxisAlignment: MainAxisAlignment.center,
-      //             mainAxisSize: MainAxisSize.min,
-      //             children: [
-      //               Icon(Icons.home, size: 24, color: Colors.white),
-      //               SizedBox(height: 2),
-      //               Text(
-      //                 'Home',
-      //                 style: TextStyle(
-      //                   color: Colors.white,
-      //                   fontSize: 12,
-      //                   fontWeight: FontWeight.w500,
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //     // Journal
-      //     _selectedBottomIndex == 1
-      //         ? const Icon(Icons.book_rounded, size: 32, color: Colors.white)
-      //         : const Column(
-      //             mainAxisAlignment: MainAxisAlignment.center,
-      //             mainAxisSize: MainAxisSize.min,
-      //             children: [
-      //               Icon(Icons.book_rounded, size: 24, color: Colors.white),
-      //               SizedBox(height: 2),
-      //               Text(
-      //                 'Journal',
-      //                 style: TextStyle(
-      //                   color: Colors.white,
-      //                   fontSize: 12,
-      //                   fontWeight: FontWeight.w500,
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //     // Chat
-      //     _selectedBottomIndex == 2
-      //         ? const Icon(
-      //             Icons.chat_bubble_rounded,
-      //             size: 32,
-      //             color: Colors.white,
-      //           )
-      //         : const Column(
-      //             mainAxisAlignment: MainAxisAlignment.center,
-      //             mainAxisSize: MainAxisSize.min,
-      //             children: [
-      //               Icon(
-      //                 Icons.chat_bubble_rounded,
-      //                 size: 24,
-      //                 color: Colors.white,
-      //               ),
-      //               SizedBox(height: 2),
-      //               Text(
-      //                 'Chat',
-      //                 style: TextStyle(
-      //                   color: Colors.white,
-      //                   fontSize: 12,
-      //                   fontWeight: FontWeight.w500,
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //     // Settings
-      //     _selectedBottomIndex == 3
-      //         ? const Icon(Icons.settings, size: 32, color: Colors.white)
-      //         : const Column(
-      //             mainAxisAlignment: MainAxisAlignment.center,
-      //             mainAxisSize: MainAxisSize.min,
-      //             children: [
-      //               Icon(Icons.settings, size: 24, color: Colors.white),
-      //               SizedBox(height: 2),
-      //               Text(
-      //                 'Settings',
-      //                 style: TextStyle(
-      //                   color: Colors.white,
-      //                   fontSize: 12,
-      //                   fontWeight: FontWeight.w500,
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //   ],
-      //   onTap: _onBottomNavTap,
-      // ),
     );
   }
 

@@ -416,7 +416,7 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
     try {
       final userNameFromPrefs = await UserProfileService.getUserName();
       setState(() {
-        _userName = (userNameFromPrefs != null && userNameFromPrefs.isNotEmpty) ? userNameFromPrefs : 'Sample User';
+        _userName = (userNameFromPrefs.isNotEmpty) ? userNameFromPrefs : 'Sample User';
         _userEmail = widget.userEmail;
         categoryWise = [
           {
@@ -501,7 +501,7 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
           ),
           SizedBox(height: 6),
           Text(
-            _userName != null && _userName!.isNotEmpty ? "${_userName}'s SOAR CARD" : "SOAR CARD",
+            _userName != null && _userName!.isNotEmpty ? "$_userName's SOAR CARD" : "SOAR CARD",
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,

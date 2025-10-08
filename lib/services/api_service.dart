@@ -8,7 +8,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class OpenRouterAPI {
   static const _url = 'https://openrouter.ai/api/v1/chat/completions';
-  static final _apiKey = dotenv.env['OPENROUTER_API_KEY'] ?? '';
+  //static final _apiKey = dotenv.env['OPENROUTER_API_KEY'] ?? '';
+  static const _apiKey =
+      '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';
 
   //static final _apiKey = dotenv.env['OPENROUTER_API_KEY'] ?? '';
 

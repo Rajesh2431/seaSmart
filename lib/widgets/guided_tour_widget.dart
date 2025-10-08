@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'avatar_dialogue_widget.dart';
 import '../services/guided_tour_service.dart';
-import '../services/user_avatar_service.dart';
 
 class GuidedTourWidget extends StatelessWidget {
   final Widget child;

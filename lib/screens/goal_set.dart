@@ -4,7 +4,6 @@ import '../services/soar_card_service.dart';
 import '../models/goal_data.dart';
 //import 'dashboard_screen.dart';
 import 'grow_screen.dart';
-import 'daily_checkin_screen.dart';
 
 class GoalSet extends StatefulWidget {
   final String? userEmail;
@@ -285,56 +284,58 @@ class _GoalPageState extends State<GoalSet>
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
-                  gradient: LinearGradient(colors: [primaryBlue, secondaryBlue]),
+                  gradient: LinearGradient(
+                    colors: [primaryBlue, secondaryBlue],
+                  ),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 indicatorPadding: const EdgeInsets.all(4),
                 labelPadding: EdgeInsets.zero,
                 isScrollable: false,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.grey.shade600,
-              labelStyle: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                letterSpacing: 0.3,
-              ),
-              unselectedLabelStyle: const TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 13,
-                letterSpacing: 0.3,
-              ),
-              tabs: const [
-                Tab(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Text(
-                      "Recommended",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.grey.shade600,
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  letterSpacing: 0.3,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 13,
+                  letterSpacing: 0.3,
+                ),
+                tabs: const [
+                  Tab(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text(
+                        "Recommended",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
-                ),
-                Tab(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Text(
-                      "Create New",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Tab(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text(
+                        "Create New",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
-                ),
-                Tab(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Text(
-                      "My Goals",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  Tab(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text(
+                        "My Goals",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
               ),
             ),
           ),
@@ -1047,7 +1048,7 @@ class _GoalPageState extends State<GoalSet>
       });
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const GrowScreen()),
+        MaterialPageRoute(builder: (_) => const GoalSet()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1074,7 +1075,7 @@ class _GoalPageState extends State<GoalSet>
       );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const GrowScreen()),
+        MaterialPageRoute(builder: (_) => const GoalSet()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -313,8 +313,6 @@ class ContentService {
     },
   ];
 
-  static get CertificateService => null;
-
   /// Analyze user message and suggest the most relevant video
   static Map<String, String>? analyzeMessageAndSuggestVideo(
     String userMessage,

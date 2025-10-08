@@ -39,7 +39,7 @@ void main() async {
   // Enable notifications by default (compulsory)
   await NotificationService.enableDefaultNotifications();
 
-  await dotenv.load(fileName: ".env");
+  //await dotenv.load(fileName: ".env");
 
   runApp(const App());
 }

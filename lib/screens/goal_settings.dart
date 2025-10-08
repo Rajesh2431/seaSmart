@@ -1010,7 +1010,7 @@ class _GoalPageState extends State<GoalPage>
         selectedPeriod = null;
         notesController.clear();
       });
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => const GoalCompletedScreen(userEmail: ''),
@@ -1039,7 +1039,7 @@ class _GoalPageState extends State<GoalPage>
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => const GoalCompletedScreen(userEmail: ''),
