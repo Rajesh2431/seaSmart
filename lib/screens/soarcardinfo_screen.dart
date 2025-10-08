@@ -252,23 +252,24 @@ class _SOARProfileIntroScreenState extends State<SOARProfileIntroScreen> {
     final deviceType = _getDeviceType(context);
     final screenWidth = MediaQuery.of(context).size.width;
 
-    double videoSize;
+    double maxSide;
     switch (deviceType) {
       case DeviceType.mobile:
-        videoSize = (screenWidth * 0.85).clamp(250.0, 350.0);
+        maxSide = (screenWidth * 0.85).clamp(250.0, 350.0);
         break;
       case DeviceType.tablet:
-        videoSize = (screenWidth * 0.65).clamp(400.0, 550.0);
+        maxSide = (screenWidth * 0.65).clamp(400.0, 550.0);
         break;
       case DeviceType.largeTablet:
-        videoSize = 600.0;
+        maxSide = 600.0;
         break;
     }
 
     return Center(
       child: Container(
-        width: videoSize,
-        height: videoSize,
+        width: maxSide,
+        // Height will be derived from aspect ratio; keep a cap only
+        constraints: BoxConstraints(maxHeight: maxSide),
         decoration: BoxDecoration(
           color: Colors.white, // force background to white
           borderRadius: BorderRadius.circular(15),
@@ -277,13 +278,18 @@ class _SOARProfileIntroScreenState extends State<SOARProfileIntroScreen> {
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: Container(
-                  color: Colors.white, // mask video edges
+                  color: Colors.white,
                   child: FittedBox(
                     fit: BoxFit.cover,
-                    child: SizedBox(
-                      width: _videoController!.value.size.width,
-                      height: _videoController!.value.size.height,
-                      child: VideoPlayer(_videoController!),
+                    child: Transform.scale(
+                      // Slightly enlarge to hide hairline seams
+                      scale: 1.03, // try 1.02–1.05 depending on device
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: _videoController!.value.size.width,
+                        height: _videoController!.value.size.height,
+                        child: VideoPlayer(_videoController!),
+                      ),
                     ),
                   ),
                 ),
@@ -349,7 +355,11 @@ class _SOARProfileIntroScreenState extends State<SOARProfileIntroScreen> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: () {
+        onPressed: () async {
+          // NEW: stop video before navigating
+          if (_videoController != null && _videoController!.value.isPlaying) {
+            await _videoController!.pause();
+          }
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => QuizPage(userEmail: userEmail),

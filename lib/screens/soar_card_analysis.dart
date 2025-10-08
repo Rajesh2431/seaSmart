@@ -129,58 +129,69 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
       // Try the main endpoint first
       final url =
           "https://strivehigh.thirdvizion.com/api/soarcarddetails/${widget.userEmail}/?format=json&limit=10&order=desc&order_by=created_at";
-      
+
       debugPrint("Attempting to fetch from: $url");
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
         // Check if response is HTML (error page) instead of JSON
-        if (response.body.trim().startsWith('<!DOCTYPE') || response.body.trim().startsWith('<html')) {
-          debugPrint("API returned HTML instead of JSON - trying fallback endpoint");
+        if (response.body.trim().startsWith('<!DOCTYPE') ||
+            response.body.trim().startsWith('<html')) {
+          debugPrint(
+            "API returned HTML instead of JSON - trying fallback endpoint",
+          );
           await _tryFallbackEndpoint();
           return;
         }
-        
+
         final data = json.decode(response.body);
         debugPrint("API Response: $data");
 
         // Handle the specific JSON structure from soarcarddetails API
         if (data is Map && data.containsKey('category_wise_avgs')) {
           final categoryWiseAvgs = data['category_wise_avgs'] as List<dynamic>;
-          debugPrint("Found ${categoryWiseAvgs.length} categories in category_wise_avgs");
-          
+          debugPrint(
+            "Found ${categoryWiseAvgs.length} categories in category_wise_avgs",
+          );
+
           // Process category_wise_avgs array
           categoryWise = [];
           for (var item in categoryWiseAvgs) {
             final category = item['category']?.toString() ?? '';
             final avg = double.tryParse(item['avg'].toString()) ?? 0.0;
-            
+
             if (category.isNotEmpty) {
-              categoryWise.add({
-                "category": category,
-                "percentage": avg,
-              });
+              categoryWise.add({"category": category, "percentage": avg});
               debugPrint("Category: $category = $avg%");
             }
           }
-          
+
           // Sort by percentage descending
-          categoryWise.sort((a, b) => (b["percentage"] as double).compareTo(a["percentage"] as double));
-          
+          categoryWise.sort(
+            (a, b) => (b["percentage"] as double).compareTo(
+              a["percentage"] as double,
+            ),
+          );
+
           debugPrint(
             "Loaded ${categoryWise.length} categories with actual scores for user: ${widget.userEmail}",
           );
-          
+
           // Update quizCategories for compatibility
           setState(() {
-            quizCategories = categoryWise.map((item) => {
-              "category": item["category"],
-              "score": item["percentage"],
-            }).toList();
+            quizCategories = categoryWise
+                .map(
+                  (item) => {
+                    "category": item["category"],
+                    "score": item["percentage"],
+                  },
+                )
+                .toList();
           });
-          
         } else {
-          debugPrint("API response doesn't contain category_wise_avgs, trying fallback");
+          debugPrint(
+            "API response doesn't contain category_wise_avgs, trying fallback",
+          );
           await _tryFallbackEndpoint();
         }
       } else {
@@ -190,25 +201,35 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
       }
     } catch (e) {
       debugPrint("Exception in _fetchQuizData: $e");
-      
+
       // Use sample data when API fails
       setState(() {
         categoryWise = [
-          {"category": "Communication & influencing (Emotional Openness )", "percentage": 75.0},
+          {
+            "category": "Communication & influencing (Emotional Openness )",
+            "percentage": 75.0,
+          },
           {"category": "Situation Awareness", "percentage": 68.0},
           {"category": "Teamwork", "percentage": 72.0},
-          {"category": "Result Focus (Professional Development & Compliance)", "percentage": 65.0},
+          {
+            "category": "Result Focus (Professional Development & Compliance)",
+            "percentage": 65.0,
+          },
           {"category": "Leadership", "percentage": 58.0},
           {"category": "Stress management", "percentage": 62.0},
           {"category": "Decision making", "percentage": 55.0},
           {"category": "Crew Relationships", "percentage": 70.0},
         ];
-        
-        quizCategories = categoryWise.map((item) => {
-          "category": item["category"],
-          "score": item["percentage"],
-        }).toList();
-        
+
+        quizCategories = categoryWise
+            .map(
+              (item) => {
+                "category": item["category"],
+                "score": item["percentage"],
+              },
+            )
+            .toList();
+
         _error = "Using sample data - API unavailable";
       });
     }
@@ -218,52 +239,60 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
   Future<void> _tryFallbackEndpoint() async {
     try {
       // Try simpler endpoint without query parameters
-      final fallbackUrl = "https://strivehigh.thirdvizion.com/api/soarcarddetails/${widget.userEmail}/";
+      final fallbackUrl =
+          "https://strivehigh.thirdvizion.com/api/soarcarddetails/${widget.userEmail}/";
       debugPrint("Trying fallback endpoint: $fallbackUrl");
-      
+
       final response = await http.get(Uri.parse(fallbackUrl));
-      
-      if (response.statusCode == 200 && !response.body.trim().startsWith('<!DOCTYPE')) {
+
+      if (response.statusCode == 200 &&
+          !response.body.trim().startsWith('<!DOCTYPE')) {
         final data = json.decode(response.body);
         debugPrint("Fallback endpoint successful");
-        
+
         // Handle the same JSON structure as main endpoint
         if (data is Map && data.containsKey('category_wise_avgs')) {
           final categoryWiseAvgs = data['category_wise_avgs'] as List<dynamic>;
-          debugPrint("Fallback: Found ${categoryWiseAvgs.length} categories in category_wise_avgs");
-          
+          debugPrint(
+            "Fallback: Found ${categoryWiseAvgs.length} categories in category_wise_avgs",
+          );
+
           categoryWise = [];
           for (var item in categoryWiseAvgs) {
             final category = item['category']?.toString() ?? '';
             final avg = double.tryParse(item['avg'].toString()) ?? 0.0;
-            
+
             if (category.isNotEmpty) {
-              categoryWise.add({
-                "category": category,
-                "percentage": avg,
-              });
+              categoryWise.add({"category": category, "percentage": avg});
             }
           }
-          
+
           // Sort by percentage descending
-          categoryWise.sort((a, b) => (b["percentage"] as double).compareTo(a["percentage"] as double));
-          
+          categoryWise.sort(
+            (a, b) => (b["percentage"] as double).compareTo(
+              a["percentage"] as double,
+            ),
+          );
+
           setState(() {
-            quizCategories = categoryWise.map((item) => {
-              "category": item["category"],
-              "score": item["percentage"],
-            }).toList();
+            quizCategories = categoryWise
+                .map(
+                  (item) => {
+                    "category": item["category"],
+                    "score": item["percentage"],
+                  },
+                )
+                .toList();
           });
-          
+
           debugPrint("Fallback: Processed ${categoryWise.length} categories");
           return;
         }
       }
-      
+
       // If fallback also fails, use sample data
       debugPrint("Fallback endpoint also failed, using sample data");
       _useSampleQuizData();
-      
     } catch (e) {
       debugPrint("Fallback endpoint failed: $e");
       _useSampleQuizData();
@@ -273,11 +302,11 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
   /// Process quiz data and update UI
   void _processQuizData(List<dynamic> results) {
     final Map<String, List<double>> categoryScores = {};
-    
+
     for (var item in results) {
       final category = item['category']?.toString() ?? '';
       final score = double.tryParse(item['score'].toString()) ?? 0.0;
-      
+
       if (category.isNotEmpty) {
         if (!categoryScores.containsKey(category)) {
           categoryScores[category] = [];
@@ -285,27 +314,31 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
         categoryScores[category]!.add(score);
       }
     }
-    
+
     // Calculate average scores for each category
     categoryWise = [];
     categoryScores.forEach((category, scores) {
       final averageScore = scores.reduce((a, b) => a + b) / scores.length;
-      categoryWise.add({
-        "category": category,
-        "percentage": averageScore,
-      });
+      categoryWise.add({"category": category, "percentage": averageScore});
     });
-    
+
     // Sort by percentage descending
-    categoryWise.sort((a, b) => (b["percentage"] as double).compareTo(a["percentage"] as double));
-    
+    categoryWise.sort(
+      (a, b) =>
+          (b["percentage"] as double).compareTo(a["percentage"] as double),
+    );
+
     setState(() {
-      quizCategories = categoryWise.map((item) => {
-        "category": item["category"],
-        "score": item["percentage"],
-      }).toList();
+      quizCategories = categoryWise
+          .map(
+            (item) => {
+              "category": item["category"],
+              "score": item["percentage"],
+            },
+          )
+          .toList();
     });
-    
+
     debugPrint("Processed ${categoryWise.length} categories from API data");
   }
 
@@ -313,21 +346,31 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
   void _useSampleQuizData() {
     setState(() {
       categoryWise = [
-        {"category": "Communication & influencing (Emotional Openness )", "percentage": 75.0},
+        {
+          "category": "Communication & influencing (Emotional Openness )",
+          "percentage": 75.0,
+        },
         {"category": "Situation Awareness", "percentage": 68.0},
         {"category": "Teamwork", "percentage": 72.0},
-        {"category": "Result Focus (Professional Development & Compliance)", "percentage": 65.0},
+        {
+          "category": "Result Focus (Professional Development & Compliance)",
+          "percentage": 65.0,
+        },
         {"category": "Leadership", "percentage": 58.0},
         {"category": "Stress management", "percentage": 62.0},
         {"category": "Decision making", "percentage": 55.0},
         {"category": "Crew Relationships", "percentage": 70.0},
       ];
-      
-      quizCategories = categoryWise.map((item) => {
-        "category": item["category"],
-        "score": item["percentage"],
-      }).toList();
-      
+
+      quizCategories = categoryWise
+          .map(
+            (item) => {
+              "category": item["category"],
+              "score": item["percentage"],
+            },
+          )
+          .toList();
+
       _error = "Using sample data - API unavailable";
     });
   }
@@ -362,7 +405,11 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
           debugPrint("Available keys: ${data.keys}");
 
           setState(() {
-            _userName = data['sailor_name']?.toString() ?? data['name']?.toString() ?? data['username']?.toString() ?? '';
+            _userName =
+                data['sailor_name']?.toString() ??
+                data['name']?.toString() ??
+                data['username']?.toString() ??
+                '';
             _userEmail = data['user_email']?.toString() ?? widget.userEmail;
 
             // ✅ Use avg array (since categoryWise is not returned)
@@ -374,12 +421,15 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
                 i < avgList.length && i < predefinedCategories.length;
                 i++
               ) {
-                final percentage = double.tryParse(avgList[i].toString()) ?? 0.0;
+                final percentage =
+                    double.tryParse(avgList[i].toString()) ?? 0.0;
                 categoryWise.add({
                   "category": predefinedCategories[i],
                   "percentage": percentage,
                 });
-                debugPrint("Category ${i + 1}: ${predefinedCategories[i]} = $percentage%");
+                debugPrint(
+                  "Category ${i + 1}: ${predefinedCategories[i]} = $percentage%",
+                );
               }
               debugPrint(
                 "Loaded ${categoryWise.length} categories from avg array",
@@ -416,7 +466,9 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
     try {
       final userNameFromPrefs = await UserProfileService.getUserName();
       setState(() {
-        _userName = (userNameFromPrefs.isNotEmpty) ? userNameFromPrefs : 'Sample User';
+        _userName = (userNameFromPrefs.isNotEmpty)
+            ? userNameFromPrefs
+            : 'Sample User';
         _userEmail = widget.userEmail;
         categoryWise = [
           {
@@ -492,7 +544,7 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
         children: [
           SizedBox(height: 20),
           Text(
-            "Know",
+            "KNOW",
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -501,7 +553,9 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
           ),
           SizedBox(height: 6),
           Text(
-            _userName != null && _userName!.isNotEmpty ? "$_userName's SOAR CARD" : "SOAR CARD",
+            _userName != null && _userName!.isNotEmpty
+                ? "$_userName's SOAR CARD"
+                : "SOAR CARD",
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -745,18 +799,12 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
                   const SizedBox(height: 12),
                   Text(
                     'No assessment data available',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Complete the SOAR assessment to see your results',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade500,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -777,20 +825,22 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
     // Use actual percentages from the data, but ensure they're reasonable for visualization
     final sections = <PieChartSectionData>[];
     debugPrint("Building pie chart with ${sortedCategories.length} categories");
-    
+
     for (int i = 0; i < sortedCategories.length; i++) {
       final item = sortedCategories[i];
       final actualPercentage = item["percentage"] as double;
-      
+
       // Ensure percentage is between 0 and 100 for proper visualization
       final displayPercentage = actualPercentage.clamp(0.0, 100.0);
       final color = _getPieColorByIndex(i, sortedCategories.length);
 
-      debugPrint("Pie chart section ${i + 1}: ${item["category"]} = $displayPercentage%");
+      debugPrint(
+        "Pie chart section ${i + 1}: ${item["category"]} = $displayPercentage%",
+      );
 
       // For equal scores, distribute evenly across the pie chart
       final equalValue = 100.0 / sortedCategories.length;
-      
+
       sections.add(
         PieChartSectionData(
           color: color,
@@ -961,20 +1011,20 @@ class _SoarDashboardPageState extends State<SoarDashboardPage> {
   Color _getPieColorByIndex(int index, int totalCategories) {
     // Define a palette of distinct colors
     final List<Color> colorPalette = [
-      const Color.fromRGBO(4, 105, 225, 1.0),      // Blue
-      const Color.fromRGBO(247, 204, 28, 1.0),     // Yellow
-      const Color.fromRGBO(19, 214, 214, 1.0),     // Cyan
-      const Color.fromRGBO(87, 211, 92, 1.0),     // Green
-      const Color.fromRGBO(255, 142, 28, 1.0),    // Orange
-      const Color.fromRGBO(247, 84, 63, 1.0),     // Red
-      const Color.fromRGBO(156, 39, 176, 1.0),    // Purple
-      const Color.fromRGBO(42, 141, 236, 1.0),    // Light Blue
-      const Color.fromRGBO(76, 175, 80, 1.0),     // Light Green
-      const Color.fromRGBO(255, 193, 7, 1.0),     // Amber
-      const Color.fromRGBO(233, 30, 99, 1.0),     // Pink
-      const Color.fromRGBO(96, 125, 139, 1.0),    // Blue Grey
+      const Color.fromRGBO(4, 105, 225, 1.0), // Blue
+      const Color.fromRGBO(247, 204, 28, 1.0), // Yellow
+      const Color.fromRGBO(19, 214, 214, 1.0), // Cyan
+      const Color.fromRGBO(87, 211, 92, 1.0), // Green
+      const Color.fromRGBO(255, 142, 28, 1.0), // Orange
+      const Color.fromRGBO(247, 84, 63, 1.0), // Red
+      const Color.fromRGBO(156, 39, 176, 1.0), // Purple
+      const Color.fromRGBO(42, 141, 236, 1.0), // Light Blue
+      const Color.fromRGBO(76, 175, 80, 1.0), // Light Green
+      const Color.fromRGBO(255, 193, 7, 1.0), // Amber
+      const Color.fromRGBO(233, 30, 99, 1.0), // Pink
+      const Color.fromRGBO(96, 125, 139, 1.0), // Blue Grey
     ];
-    
+
     // Use modulo to cycle through colors if there are more categories than colors
     return colorPalette[index % colorPalette.length];
   }

@@ -372,7 +372,7 @@ class _QuizPageState extends State<QuizPage> {
         children: const [
           SizedBox(height: 20),
           Text(
-            "Know",
+            "KNOW",
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -399,7 +399,7 @@ class _QuizPageState extends State<QuizPage> {
           ),
           SizedBox(height: 6),
           Text(
-            "Strength, Opportunities, Aspirations & Result",
+            "Strength, Opportunities, Aspirations & Recommendation",
             style: TextStyle(fontSize: 12, color: Colors.white70),
             textAlign: TextAlign.center,
           ),

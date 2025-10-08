@@ -409,7 +409,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: GestureDetector(
         // Dismiss keyboard when tapping outside input fields
         onTap: () => FocusScope.of(context).unfocus(),
@@ -1010,16 +1010,22 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
   Widget _buildJourneyPage(BuildContext context, String userEmail) {
     return Scaffold(
+      // 1) Make scaffold opaque
+      backgroundColor: Colors.white, // <-- important
       resizeToAvoidBottomInset: false,
-      body: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          // image: DecorationImage(
-          //   image: AssetImage("lib/assets/images/wel_bg.png"),
-          //   fit: BoxFit.cover,
-          // ),
-        ),
+      // If there is a bottom bar elsewhere, keep this false so content doesn't float
+      extendBody: false,
+      extendBodyBehindAppBar: false,
+
+      body: ColoredBox(
+        // 2) Ensure scroll/overscroll is on white, not default
+        color: Colors.white,
         child: SafeArea(
+          // If a tint shows at top/bottom, include all sides
+          top: true,
+          bottom: true,
+          left: true,
+          right: true,
           child: LayoutBuilder(
             builder: (context, constraints) {
               final deviceType = _getDeviceType(context);
@@ -1029,6 +1035,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               return Padding(
                 padding: EdgeInsets.all(horizontalPadding),
                 child: SingleChildScrollView(
+                  // 3) Also set physics/background to avoid glow color mixing
+                  physics: const BouncingScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -1037,7 +1045,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         children: [
                           SizedBox(height: screenHeight * 0.0001),
 
-                          // Welcome text
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -1052,7 +1059,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                           SizedBox(height: screenHeight * 0.0001),
 
-                          // App name
                           FittedBox(
                             fit: BoxFit.scaleDown,
                             child: Text(
@@ -1067,7 +1073,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                           SizedBox(height: screenHeight * 0.01),
 
-                          // Blue container with tagline
                           Container(
                             width: double.infinity,
                             constraints: BoxConstraints(
@@ -1110,12 +1115,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                           SizedBox(height: screenHeight * 0.01),
 
-                          // GIF Image
                           SizedBox(
                             width: _getGifSize(context, screenHeight * 3),
                             height: _getGifSize(context, screenHeight * 3),
                             child: Image.asset(
-                              'lib/assets/videos/ship.gif', // Replace with your GIF path
+                              'lib/assets/videos/ship.gif',
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
@@ -1137,7 +1141,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
                           SizedBox(height: screenHeight * .01),
 
-                          // Description text
                           Container(
                             constraints: BoxConstraints(
                               maxWidth: deviceType == DeviceType.mobile
@@ -1156,27 +1159,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           ),
                         ],
                       ),
-
-                      // Middle section - Illustration (empty placeholder)
-                      // Container(
-                      //   width: _getIllustrationSize(context, screenHeight ),
-                      //   height: _getIllustrationSize(context, screenHeight),
-                      //   decoration: BoxDecoration(
-                      //     color: Colors.grey.shade100.withOpacity(0),
-                      //     borderRadius: BorderRadius.circular(
-                      //       _getIllustrationSize(context, screenHeight) / 2,
-                      //     ),
-                      //     border: Border.all(
-                      //       color: const Color.fromARGB(
-                      //         255,
-                      //         0,
-                      //         136,
-                      //         190,
-                      //       ).withOpacity(0),
-                      //       width: 2,
-                      //     ),
-                      //   ),
-                      // ),
 
                       // Bottom section
                       Column(
@@ -1249,13 +1231,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 height: 80,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(40),
-                  // boxShadow: [
-                  //   BoxShadow(
-                  //     color: const Color(0xFF3498DB).withValues(alpha: 0.2),
-                  //     blurRadius: 15,
-                  //     offset: const Offset(0, 8),
-                  //   ),
-                  // ],
                 ),
                 child: Image.asset(
                   'lib/assets/images/anc.png',

@@ -75,8 +75,7 @@ class ContentService {
   ];
 
   // Academy website link for loneliness course
-  static const String academyWebsiteUrl =
-      'https://strive-high.com/strive-high-academy/';
+  static const String academyWebsiteUrl = 'https://strivehigh.thirdvizion.com/';
   static const String academyWebsiteName = 'Loneliness Academy';
 
   // Legacy LMS website link (keeping for backward compatibility)

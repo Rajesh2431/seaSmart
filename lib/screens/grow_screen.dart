@@ -58,6 +58,52 @@ class _MoodIndicator extends StatelessWidget {
   }
 }
 
+class SquareBox extends StatelessWidget {
+  const SquareBox({super.key, required this.child, this.radius = 16});
+  final Widget child;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (_, c) {
+        final side = c.maxWidth;
+        return SizedBox(
+          width: side,
+          height: side,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: child,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class AspectCard extends StatelessWidget {
+  const AspectCard({
+    super.key,
+    required this.aspectRatio,
+    required this.child,
+    this.radius = 16,
+  });
+  final double aspectRatio;
+  final Widget child;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: aspectRatio,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: child,
+      ),
+    );
+  }
+}
+
 class JournalPage extends StatelessWidget {
   const JournalPage({super.key});
   @override
@@ -99,8 +145,14 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
   Set<String> loginDates = {}; // Stores dates when user logged in
   int currentStreak = 0;
   bool showConfetti = false;
+
   AnimationController? _confettiController;
   final List<Confetti> _confettiList = [];
+
+  // NEW: scrolling
+  final ScrollController _scrollController = ScrollController();
+  static const double _itemWidth = 48; // your item width
+  static const double _itemHMargin = 6; // left/right margin used
 
   // Motivational quotes
   final List<String> motivationalQuotes = [
@@ -119,18 +171,24 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
   @override
   void initState() {
     super.initState();
+
     _confettiController =
         AnimationController(vsync: this, duration: const Duration(seconds: 5))
           ..addListener(() {
             if (mounted) setState(() {});
           });
+
     _loadLoginData();
     _markTodayAsLogin();
+
+    // Center to today's date after first build
+    WidgetsBinding.instance.addPostFrameCallback((_) => _centerToday());
   }
 
   @override
   void dispose() {
     _confettiController?.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -138,7 +196,6 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
   Future<void> _loadLoginData() async {
     final prefs = await SharedPreferences.getInstance();
     final savedDates = prefs.getStringList('login_dates') ?? [];
-
     if (mounted) {
       setState(() {
         loginDates = savedDates.toSet();
@@ -151,11 +208,9 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
   Future<void> _markTodayAsLogin() async {
     final today = DateTime.now();
     final todayString = _formatDate(today);
-
     if (!loginDates.contains(todayString)) {
       loginDates.add(todayString);
       await _saveLoginDates();
-
       if (mounted) {
         setState(() {
           currentStreak = _calculateStreak();
@@ -184,20 +239,53 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
   int _calculateStreak() {
     int streak = 0;
     DateTime checkDate = DateTime.now();
-
     while (_hasLogin(checkDate)) {
       streak++;
       checkDate = checkDate.subtract(const Duration(days: 1));
     }
-
     return streak;
+  }
+
+  // Center list to today's item
+  void _centerToday() {
+    if (!mounted) return;
+
+    final now = DateTime.now();
+    final firstOfMonth = DateTime(now.year, now.month, 1);
+    final index = now.difference(firstOfMonth).inDays; // 0-based index
+    final viewportWidth =
+        context.size?.width ?? MediaQuery.of(context).size.width;
+
+    final itemExtent = _itemWidth + (_itemHMargin * 2); // footprint per item
+    final target =
+        (index * itemExtent) - (viewportWidth / 2) + (itemExtent / 2);
+
+    final maxScroll = _maxScrollExtentForMonth(now, itemExtent, viewportWidth);
+    final clamped = target.clamp(0.0, maxScroll);
+
+    // Smooth center; swap to jumpTo(clamped) if instant is preferred
+    _scrollController.animateTo(
+      clamped,
+      duration: const Duration(milliseconds: 450),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  double _maxScrollExtentForMonth(
+    DateTime now,
+    double itemExtent,
+    double viewportWidth,
+  ) {
+    final lastDay = DateTime(now.year, now.month + 1, 0);
+    final daysInMonth = lastDay.day;
+    final totalContent = daysInMonth * itemExtent;
+    return (totalContent - viewportWidth).clamp(0.0, double.infinity);
   }
 
   // Trigger celebration overlay
   void _triggerCelebration() {
     if (showConfetti || _confettiController == null) return;
 
-    // Show full-screen overlay
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -208,12 +296,9 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
       ),
     );
 
-    // Start confetti animation
     setState(() {
       showConfetti = true;
       _confettiList.clear();
-
-      // Generate more confetti particles for fuller effect
       final random = Random();
       for (int i = 0; i < 100; i++) {
         _confettiList.add(
@@ -235,7 +320,6 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
         setState(() {
           showConfetti = false;
         });
-        // Close overlay after 5 seconds
         Navigator.of(context).pop();
       }
     });
@@ -259,16 +343,10 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
 
   @override
   Widget build(BuildContext context) {
-    // Get current date
     final now = DateTime.now();
-
-    // Get last day of current month
     final lastDay = DateTime(now.year, now.month + 1, 0);
-
-    // Calculate number of days in current month
     final daysInMonth = lastDay.day;
 
-    // Generate all days for the current month
     final dates = List.generate(daysInMonth, (index) {
       return DateTime(now.year, now.month, index + 1);
     });
@@ -278,6 +356,7 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
       child: Stack(
         children: [
           ListView.builder(
+            controller: _scrollController, // NEW
             scrollDirection: Axis.horizontal,
             itemCount: dates.length,
             itemBuilder: (context, index) {
@@ -299,37 +378,32 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
                     setState(() {
                       selectedDate = date;
                     });
+                    // Optional: recentre when selecting a date
+                    // _centerToIndex(index);
                   }
                 },
                 onLongPress: isToday ? _triggerCelebration : null,
                 child: Container(
-                  width: 48, // Optimized width for exact spacing
+                  width: _itemWidth, // keep original item size
                   margin: const EdgeInsets.symmetric(
-                    horizontal: 6,
+                    horizontal: _itemHMargin,
                     vertical: 3,
-                  ), // Precise margins
+                  ),
                   decoration: BoxDecoration(
                     gradient: isSelected
-                        ? LinearGradient(
-                            colors: [
-                              const Color(0xFF3B82F6), // Medium blue
-                              const Color(0xFF06B6D4), // Turquoise blue
-                            ],
+                        ? const LinearGradient(
+                            colors: [Color(0xFF3B82F6), Color(0xFF06B6D4)],
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                           )
                         : null,
                     color: isSelected ? null : Colors.white,
-                    borderRadius: BorderRadius.circular(
-                      20,
-                    ), // Perfect pill shape
+                    borderRadius: BorderRadius.circular(20),
                     border: isSelected
                         ? null
                         : Border.all(
                             color: hasLogin
-                                ? const Color(
-                                    0xFF10B981,
-                                  ) // Green border for login days
+                                ? const Color(0xFF10B981)
                                 : Colors.grey.shade300,
                             width: 1,
                           ),
@@ -344,49 +418,41 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Number badge
                       Container(
-                        width: 30, // Perfect size for the badge
+                        width: 30,
                         height: 30,
                         decoration: BoxDecoration(
                           color: isSelected
                               ? Colors.white
                               : hasLogin
-                              ? const Color(
-                                  0xFFD1FAE5,
-                                ) // Light green for login days
-                              : const Color(0xFFE0F2FE), // Light blue
+                              ? const Color(0xFFD1FAE5)
+                              : const Color(0xFFE0F2FE),
                           shape: BoxShape.circle,
                         ),
                         child: Center(
                           child: Text(
                             '$dayNumber',
                             style: TextStyle(
-                              fontSize: 15, // Optimal font size
+                              fontSize: 15,
                               fontWeight: FontWeight.bold,
                               color: isSelected
-                                  ? const Color(
-                                      0xFF3B82F6,
-                                    ) // Blue text on white
+                                  ? const Color(0xFF3B82F6)
                                   : hasLogin
-                                  ? const Color(
-                                      0xFF10B981,
-                                    ) // Green text for login
-                                  : const Color(0xFF0EA5E9), // Light blue text
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFF0EA5E9),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 5), // Perfect spacing
-                      // Day text
+                      const SizedBox(height: 5),
                       Text(
                         'Day',
                         style: TextStyle(
-                          fontSize: 12, // Optimal font size
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: isSelected
                               ? Colors.white
-                              : const Color(0xFF0EA5E9), // Light blue
+                              : const Color(0xFF0EA5E9),
                         ),
                       ),
                     ],
@@ -396,7 +462,6 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
             },
           ),
 
-          // Confetti overlay
           if (showConfetti && _confettiController != null)
             Positioned.fill(
               child: IgnorePointer(
@@ -410,6 +475,23 @@ class _HorizontalCalendarState extends State<HorizontalCalendar>
             ),
         ],
       ),
+    );
+  }
+
+  // Optional helper if wanting to center any tapped index
+  void _centerToIndex(int index) {
+    final viewportWidth =
+        context.size?.width ?? MediaQuery.of(context).size.width;
+    final itemExtent = _itemWidth + (_itemHMargin * 2);
+    final target =
+        (index * itemExtent) - (viewportWidth / 2) + (itemExtent / 2);
+    final now = DateTime.now();
+    final maxScroll = _maxScrollExtentForMonth(now, itemExtent, viewportWidth);
+    final clamped = target.clamp(0.0, maxScroll);
+    _scrollController.animateTo(
+      clamped,
+      duration: const Duration(milliseconds: 350),
+      curve: Curves.easeOutCubic,
     );
   }
 }
